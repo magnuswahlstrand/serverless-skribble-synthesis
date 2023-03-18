@@ -35,6 +35,7 @@ importers:
       '@types/aws-lambda': ^8.10.114
       '@types/node': ^18.15.3
       abort-controller: link:@aws-sdk/@aws-sdk/abort-controller
+      replicate-api: ^0.4.4
       sst: ^2.2.1
     dependencies:
       '@aws-sdk/abort-controller': 3.292.0
@@ -42,6 +43,7 @@ importers:
       '@aws-sdk/lib-storage': 3.294.0_fm572ahyuety6ptjeh22b77bsi
       '@aws-sdk/s3-request-presigner': 3.294.0
       abort-controller: link:@aws-sdk/@aws-sdk/abort-controller
+      replicate-api: 0.4.4
     devDependencies:
       '@types/aws-lambda': 8.10.114
       '@types/node': 18.15.3
@@ -4744,6 +4746,11 @@ packages:
   /remeda/1.9.1:
     resolution: {integrity: sha512-n8vx5dg27jRCUYlM7RXQ9MbJCspb18/9wmrRTLKNNECivtAZBuxok0Ei6yV0jcFsnKLr8Y6oiuLyDXU1jt5UKw==}
     dev: true
+
+  /replicate-api/0.4.4:
+    resolution: {integrity: sha512-Gc0hZQb++d71+9adZI0D8sgswyiFl3R0IWUWfmq8p5oeF9Nju5kOWnJ40//ZwT2L94luRYM0BSDExXCk2EGR6g==}
+    engines: {node: '>=16.0.0'}
+    dev: false
 
   /require-directory/2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}

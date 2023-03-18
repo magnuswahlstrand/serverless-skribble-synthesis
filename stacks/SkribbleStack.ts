@@ -1,6 +1,8 @@
-import {Bucket, StackContext} from "sst/constructs";
+import {Bucket, Config, StackContext} from "sst/constructs";
 
 export function API({stack}: StackContext) {
+    const REPLICATE_API_TOKEN = new Config.Secret(stack, "REPLICATE_API_TOKEN");
+
     const outputBucket = new Bucket(stack, "output", {});
     const inputBucket = new Bucket(stack, "input", {
         notifications: {
@@ -9,7 +11,7 @@ export function API({stack}: StackContext) {
                 function: {
                     functionName: "process-images",
                     handler: "packages/functions/src/process-images.handler",
-                    bind: [outputBucket]
+                    bind: [outputBucket, REPLICATE_API_TOKEN]
                 }
             },
         }
