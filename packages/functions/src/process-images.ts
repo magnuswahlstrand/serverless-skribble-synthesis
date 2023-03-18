@@ -1,47 +1,58 @@
 import {S3EventRecord, S3Handler} from "aws-lambda";
-import stream from "stream";
 import {Bucket} from "sst/node/bucket";
 import * as console from "console";
-import { Upload } from "@aws-sdk/lib-storage";
+import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
 
-import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
+import {GetObjectCommand, GetObjectCommandOutput, S3Client} from "@aws-sdk/client-s3";
+
 const s3Client = new S3Client({region: "eu-west-1"});
 
 
-type S3Bucket = {
-    Bucket: string;
-    Key: string;
-}
+const replicateApiToken = '';
 
-// Read stream for downloading from S3
-async function readStreamFromS3(bucket: S3Bucket) {
-    const getObjectCommand = new GetObjectCommand({
-        Key: bucket.Key,
-        Bucket: bucket.Bucket,
+async function makeReplicateApiRequest(prompt: string, url: string, apiToken: string): Promise<any> {
+    const version = '435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117';
+    const apiUrl = 'https://api.replicate.com/v1/predictions';
+    const headers = {
+        'Authorization': `Token ${apiToken}`,
+        'Content-Type': 'application/json',
+    };
+    const body = JSON.stringify({
+        version,
+        input: {
+            image: url, // This can be a URL?
+            prompt,
+        },
     });
 
-    const data = await s3Client.send(getObjectCommand);
-    return data.Body;
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body,
+    });
+
+    if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    return await response.json();
 }
 
-// Write stream for uploading to S3
-function writeStreamToS3(bucket: S3Bucket) {
-    const pass = new stream.PassThrough();
 
-    const upload = async () => {
-        const putObjectCommand = new PutObjectCommand({
-            Key: bucket.Key,
-            Bucket: bucket.Bucket,
-            Body: pass,
-        });
+const sleep = (waitTimeInMs: number) => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
 
-        await s3Client.send(putObjectCommand);
-    };
+async function downloadImageAndConvertToBase64(bucket: string, key: string): Promise<string> {
+    const getObjectCommand = new GetObjectCommand({Bucket: bucket, Key: key});
+    const response: GetObjectCommandOutput = await s3Client.send(getObjectCommand);
 
-    return {
-        writeStream: pass,
-        upload: upload(),
-    };
+    if (!response.Body) {
+        throw new Error('Failed to download the image from S3');
+    }
+
+    return await response.Body.transformToString("base64")
+    // const data = await .arrayBuffer();
+    // const base64 = Buffer.from(data).toString('base64');
+    // return base64;
 }
 
 async function processUploadedImage(record: S3EventRecord) {
@@ -53,27 +64,32 @@ async function processUploadedImage(record: S3EventRecord) {
 
 
     // Stream to read the file from the bucket
-    const readStream = await readStreamFromS3({
-        Bucket: inputBucket,
-        Key
-    });
+    // const readStream = await downloadImageAndConvertToBase64(inputBucket, Key);
 
-    // https://stackoverflow.com/questions/69884898/how-to-upload-a-stream-to-s3-with-aws-sdk-v3
-    const parallelUploads3 = new Upload({
-        client: s3Client,
-        leavePartsOnError: false, // optional manually handle dropped parts
-        params: {
-            Bucket: outputBucket,
-            Key,
-            Body: readStream
-        },
-    })
+    const url = await getSignedUrl(s3Client, new GetObjectCommand({Bucket: inputBucket, Key: Key}));
 
-    parallelUploads3.on("httpUploadProgress", (progress: any) => {
-        console.log(progress);
-    });
+    const headers = {
+        'Authorization': `Token ${replicateApiToken}`,
+        'Content-Type': 'application/json',
+    };
 
-    await parallelUploads3.done();
+    let prediction = await makeReplicateApiRequest(Key.replace('_', ' '), url, replicateApiToken);
+    while (
+        prediction.status !== "succeeded" &&
+        prediction.status !== "failed"
+        ) {
+        console.log("Waiting for prediction to complete...")
+        await sleep(500);
+        const response = await fetch("https://api.replicate.com/v1/predictions/" + prediction.id, {headers});
+        prediction = await response.json();
+
+        if (response.status !== 200) {
+            console.log("Error: " + prediction.detail)
+            return;
+        }
+    }
+
+    console.log(prediction)
 
 // // Stream to upload to the bucket
 // const {writeStream, upload} = writeStreamToS3({

@@ -31,6 +31,7 @@ importers:
       '@aws-sdk/abort-controller': ^3.292.0
       '@aws-sdk/client-s3': ^3.294.0
       '@aws-sdk/lib-storage': ^3.294.0
+      '@aws-sdk/s3-request-presigner': ^3.294.0
       '@types/aws-lambda': ^8.10.114
       '@types/node': ^18.15.3
       abort-controller: link:@aws-sdk/@aws-sdk/abort-controller
@@ -39,6 +40,7 @@ importers:
       '@aws-sdk/abort-controller': 3.292.0
       '@aws-sdk/client-s3': 3.294.0
       '@aws-sdk/lib-storage': 3.294.0_fm572ahyuety6ptjeh22b77bsi
+      '@aws-sdk/s3-request-presigner': 3.294.0
       abort-controller: link:@aws-sdk/@aws-sdk/abort-controller
     devDependencies:
       '@types/aws-lambda': 8.10.114
@@ -1215,6 +1217,23 @@ packages:
       '@aws-sdk/types': 3.292.0
       tslib: 2.5.0
 
+  /@aws-sdk/s3-request-presigner/3.294.0:
+    resolution: {integrity: sha512-zFUgDpWLYD9vN2C5Q2/Aqm1UjvhbSyyZ7e/N8bo+Rq0IcazgUHbGFgVvGEM7yp8FS/Ncz0ouliZLFk3VtV2LxQ==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      '@aws-sdk/middleware-endpoint': 3.292.0
+      '@aws-sdk/middleware-sdk-s3': 3.292.0
+      '@aws-sdk/protocol-http': 3.292.0
+      '@aws-sdk/signature-v4-multi-region': 3.292.0
+      '@aws-sdk/smithy-client': 3.292.0
+      '@aws-sdk/types': 3.292.0
+      '@aws-sdk/util-create-request': 3.292.0
+      '@aws-sdk/util-format-url': 3.292.0
+      tslib: 2.5.0
+    transitivePeerDependencies:
+      - '@aws-sdk/signature-v4-crt'
+    dev: false
+
   /@aws-sdk/service-error-classification/3.292.0:
     resolution: {integrity: sha512-X1k3sixCeC45XSNHBe+kRBQBwPDyTFtFITb8O5Qw4dS9XWGhrUJT4CX0qE5aj8qP3F9U5nRizs9c2mBVVP0Caw==}
     engines: {node: '>=14.0.0'}
@@ -1360,6 +1379,16 @@ packages:
     dependencies:
       tslib: 2.5.0
 
+  /@aws-sdk/util-create-request/3.292.0:
+    resolution: {integrity: sha512-/Pyah55EeCt4Q3vN2Z3SPGd1mrza+B/Rx0nasJCcWVRmiDGiFvmxKVQIVlL8n7HoZ003O5lRIVxzwqnuM5FMeg==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      '@aws-sdk/middleware-stack': 3.292.0
+      '@aws-sdk/smithy-client': 3.292.0
+      '@aws-sdk/types': 3.292.0
+      tslib: 2.5.0
+    dev: false
+
   /@aws-sdk/util-defaults-mode-browser/3.292.0:
     resolution: {integrity: sha512-7+zVUlMGfa8/KT++9humHo6IDxTnxMCmWUj5jVNlkpk6h7Ecmppf7aXotviyVIA43lhtz0p2AErs0N0ekEUK+w==}
     engines: {node: '>= 10.0.0'}
@@ -1386,6 +1415,15 @@ packages:
     dependencies:
       '@aws-sdk/types': 3.292.0
       tslib: 2.5.0
+
+  /@aws-sdk/util-format-url/3.292.0:
+    resolution: {integrity: sha512-GWZu8TgQBMBY2TS+plaH4m7A/gYHWogH1kTv/Rp7drGD/wbzdmw60KmD58KecAGGxNGiKHmjEO/PHNb0UyBNTw==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      '@aws-sdk/querystring-builder': 3.292.0
+      '@aws-sdk/types': 3.292.0
+      tslib: 2.5.0
+    dev: false
 
   /@aws-sdk/util-hex-encoding/3.292.0:
     resolution: {integrity: sha512-qBd5KFIUywQ3qSSbj814S2srk0vfv8A6QMI+Obs1y2LHZFdQN5zViptI4UhXhKOHe+NnrHWxSuLC/LMH6q3SmA==}
