@@ -1,7 +1,8 @@
 import {Bucket} from "sst/node/bucket";
 import {createPresignedPost} from "@aws-sdk/s3-presigned-post";
-import {GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
+import {GetObjectCommand, HeadObjectCommand, PutObjectCommandInput, S3Client} from "@aws-sdk/client-s3";
 import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
+import {Upload} from "@aws-sdk/lib-storage";
 
 const s3Client = new S3Client({region: "eu-west-1"});
 
@@ -37,6 +38,16 @@ export async function getMetadata(bucket: string, filename: string) {
     return await s3Client.send(new HeadObjectCommand({Bucket: bucket, Key: filename}))
 }
 
-export async function uploadFile(bucket: string, filename: string, body: Readable) {
-    return s3Client.send(new PutObjectCommand({Bucket: bucket, Key: filename, Body: body}))
+export async function uploadFile(cmd: PutObjectCommandInput) {
+    // https://stackoverflow.com/questions/69884898/how-to-upload-a-stream-to-s3-with-aws-sdk-v3
+    const parallelUploads3 = new Upload({
+        client: s3Client,
+        leavePartsOnError: false, // optional manually handle dropped parts
+        params: cmd,
+    })
+    parallelUploads3.on("httpUploadProgress", (progress: any) => {
+        console.log(progress);
+    });
+
+    return await parallelUploads3.done();
 }

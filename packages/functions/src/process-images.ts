@@ -37,12 +37,12 @@ async function sendToReplicateAI(bucket: string, filename: string) {
         throw new Error('Failed to download the file');
     }
 
-    await uploadFile(Bucket.output.bucketName, filename, fileStream)
 
-    // const body = await fetch(url, {
-    //     method: 'GET',
-    // }).body
-    // uploadFile(Bucket.output, filename, body)
+    await uploadFile(({
+        Bucket: Bucket.output.bucketName,
+        Key: filename,
+        Body: fileStream,
+    }))
 
     console.log('Complete!', downloadUrl)
 }
