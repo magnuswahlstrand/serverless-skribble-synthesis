@@ -30,7 +30,7 @@ export function API({stack}: StackContext) {
             allowOrigins: ["*"],
         },
     });
-    api.bind([inputBucket])
+    api.bind([inputBucket, outputBucket])
 
     stack.addOutputs({
         ApiEndpoint: api.url,

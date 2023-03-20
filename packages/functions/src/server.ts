@@ -4,12 +4,8 @@ import {awsLambdaRequestHandler} from '@trpc/server/adapters/aws-lambda';
 import KSUID from "ksuid";
 
 import {z} from 'zod';
-import {generatePresignedUrlAndFormFields} from "./s3";
-
-interface User {
-    id: string;
-    name: string;
-}
+import {checkExists, generatePresignedUrlAndFormFields, generateSignedUrlGet} from "./s3";
+import {Bucket} from "sst/node/bucket";
 
 export const t = initTRPC.create();
 const appRouter = t.router({
@@ -17,17 +13,20 @@ const appRouter = t.router({
             .input(z.string())
             .query((req) => {
                 const id = KSUID.randomSync().string;
-                return generatePresignedUrlAndFormFields(id, req.input);
+                const prompt = req.input;
+                return generatePresignedUrlAndFormFields(id, prompt);
             }),
         getImage: t.procedure
-            .input(z.object({name: z.string()}))
-            .mutation((req) => {
-                const user: User = {
-                    id: `${Math.random()}`,
-                    name: req.input.name,
-                };
+            .input(z.string())
+            .query(async (req) => {
+                const imgId = req.input;
+                const filename = imgId + ".png"
 
-                return user;
+                await checkExists(Bucket.output.bucketName, filename);
+                return {
+                    input: await generateSignedUrlGet(Bucket.input.bucketName, filename),
+                    output: await generateSignedUrlGet(Bucket.output.bucketName, filename),
+                };
             }),
     })
 ;

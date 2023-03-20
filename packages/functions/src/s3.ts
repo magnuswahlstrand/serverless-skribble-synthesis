@@ -10,8 +10,6 @@ const s3Client = new S3Client({region: "eu-west-1"});
 export async function generatePresignedUrlAndFormFields(fileId: string, prompt: string): Promise<{ url: string, fields: { [key: string]: string }, id: string }> {
     // Specify the S3 bucket and object key that the file will be uploaded to
     const bucketName = Bucket.input.bucketName;
-    console.log(fileId);
-    console.log(typeof fileId);
 
 
     const {url, fields} = await createPresignedPost(s3Client, {
@@ -35,6 +33,10 @@ export async function generateSignedUrlGet(bucket: string, filename: string) {
 }
 
 export async function getMetadata(bucket: string, filename: string) {
+    return await s3Client.send(new HeadObjectCommand({Bucket: bucket, Key: filename}))
+}
+
+export async function checkExists(bucket: string, filename: string) {
     return await s3Client.send(new HeadObjectCommand({Bucket: bucket, Key: filename}))
 }
 
